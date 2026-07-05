@@ -1,1 +1,237 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en" data-mode="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculator · Beginner · Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg: oklch(98% 0.012 20); --surface: oklch(99.5% 0.008 60); --panel: oklch(96% 0.02 340);
+    --text: oklch(30% 0.03 300); --muted: oklch(52% 0.03 300); --accent: oklch(72% 0.15 5);
+    --accent-2: oklch(82% 0.12 165); --accent-3: oklch(85% 0.09 240); --code-bg: oklch(97% 0.02 60);
+    --border: oklch(90% 0.02 340); --radius: 20px;
+    --font-body:"Nunito", system-ui, sans-serif; --font-mono:"Fira Code", ui-monospace, monospace;
+    --shadow: 0 10px 30px -12px oklch(60% 0.08 340 / 0.35);
+  }
+  html[data-mode="dark"]{
+    --bg: oklch(24% 0.03 300); --surface: oklch(29% 0.03 300); --panel: oklch(33% 0.04 320);
+    --text: oklch(94% 0.015 60); --muted: oklch(75% 0.02 300); --code-bg: oklch(26% 0.03 300);
+    --border: oklch(40% 0.03 320); --shadow: 0 12px 32px -14px oklch(10% 0.05 300 / 0.7);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.7;-webkit-font-smoothing:antialiased;font-optical-sizing:auto;}
+  h1,h2,h3{text-wrap:balance;} p{text-wrap:pretty;}
+  a{color:var(--accent);text-decoration:none;} a:hover{text-decoration:underline;}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
+  .sidebar{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);padding:24px 18px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .brand .dot{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:grid;place-items:center;color:white;font-weight:800;font-size:18px;}
+  .brand h1{font-size:16px;margin:0;line-height:1.2;} .brand small{color:var(--muted);font-weight:600;}
+  .level-pill{display:inline-block;margin:14px 0 18px;padding:4px 12px;border-radius:999px;background:var(--accent-2);color:oklch(30% 0.05 165);font-weight:700;font-size:13px;}
+  nav a{display:flex;gap:10px;align-items:center;padding:7px 12px;border-radius:12px;color:var(--muted);font-weight:600;font-size:14.5px;margin-bottom:2px;}
+  nav a .num{font-size:12px;opacity:.7;min-width:18px;} nav a:hover{background:var(--panel);text-decoration:none;color:var(--text);}
+  nav a.active{background:var(--accent);color:white;} nav a.done .num::after{content:" ✓";color:var(--accent-2);}
+  html[data-mode="dark"] nav a.active{color:oklch(20% 0.03 300);}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:14px 32px;background:color-mix(in oklch, var(--surface) 88%, transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+  .progress-wrap{flex:1;} .progress-wrap .label{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:5px;letter-spacing:.02em;}
+  .bar{height:10px;border-radius:999px;background:var(--panel);overflow:hidden;}
+  .bar > span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s cubic-bezier(.22,1,.36,1);}
+  .toggle{border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-body);font-weight:700;font-size:14px;padding:9px 14px;border-radius:12px;cursor:pointer;transition:border-color .2s;}
+  .toggle:hover{border-color:var(--accent);} .menu-btn{display:none;}
+  main{padding:36px clamp(20px,5vw,72px);max-width:900px;}
+  section{scroll-margin-top:80px;margin-bottom:56px;}
+  .eyebrow{color:var(--accent);font-weight:800;letter-spacing:.09em;text-transform:uppercase;font-size:12.5px;}
+  h2{font-size:clamp(26px,4vw,32px);font-weight:800;margin:.15em 0 .5em;line-height:1.15;}
+  h3{font-size:20px;font-weight:800;margin:1.4em 0 .4em;} p{max-width:72ch;} ul,ol{max-width:70ch;}
+  code{font-family:var(--font-mono);font-size:.92em;background:var(--code-bg);padding:2px 6px;border-radius:7px;border:1px solid var(--border);font-variant-ligatures:none;}
+  .hero{background:linear-gradient(135deg,var(--panel),color-mix(in oklch,var(--accent-3) 40%,var(--surface)));border-radius:var(--radius);padding:34px 32px;box-shadow:var(--shadow);margin-bottom:12px;}
+  .hero h2{margin-top:0;font-size:clamp(30px,5vw,36px);}
+  .callout{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin:18px 0;}
+  .callout.tip{background:color-mix(in oklch,var(--accent-2) 30%,var(--surface));}
+  .obj{display:grid;gap:10px;padding:0;list-style:none;}
+  .obj li{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;font-weight:600;}
+  .obj li::before{content:"◆";color:var(--accent);font-size:14px;margin-top:3px;}
+  .code{position:relative;background:var(--code-bg);border:1px solid var(--border);border-radius:16px;margin:16px 0;overflow:hidden;}
+  .code .head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--muted);font-weight:700;}
+  .code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.65;font-variant-ligatures:none;}
+  .copy{border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:700;padding:5px 10px;border-radius:9px;cursor:pointer;font-family:var(--font-body);transition:border-color .2s,color .2s;}
+  .copy:hover{color:var(--accent);border-color:var(--accent);} .copy.copied{color:oklch(45% 0.12 150);border-color:oklch(70% 0.14 150);}
+  .tok-kw{color:oklch(55% 0.18 300);font-weight:600;} .tok-str{color:oklch(50% 0.13 150);} .tok-com{color:var(--muted);font-style:italic;} .tok-num{color:oklch(55% 0.16 40);} .tok-fn{color:oklch(52% 0.15 250);}
+  html[data-mode="dark"] .tok-kw{color:oklch(78% 0.14 320);} html[data-mode="dark"] .tok-str{color:oklch(80% 0.13 150);} html[data-mode="dark"] .tok-num{color:oklch(80% 0.13 55);} html[data-mode="dark"] .tok-fn{color:oklch(80% 0.12 240);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:15px;font-variant-numeric:tabular-nums;}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;} th{background:var(--panel);font-weight:800;}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin:16px 0;}
+  .diagram pre{margin:0;font-family:var(--font-mono);font-size:13px;color:var(--muted);overflow-x:auto;}
+  details.reveal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:4px 18px;margin:14px 0;}
+  details.reveal summary{cursor:pointer;font-weight:800;padding:12px 0;}
+  .quiz{display:grid;gap:18px;}
+  .q{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;}
+  .q p.stem{font-weight:800;margin:0 0 12px;}
+  .q .opt{display:block;width:100%;text-align:left;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:11px 14px;border-radius:12px;margin-bottom:8px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:border-color .2s;}
+  .q .opt:hover{border-color:var(--accent);}
+  .q .opt.correct{background:color-mix(in oklch,oklch(75% 0.15 150) 35%,var(--surface));border-color:oklch(65% 0.15 150);}
+  .q .opt.wrong{background:color-mix(in oklch,var(--accent) 25%,var(--surface));border-color:var(--accent);}
+  .q .fb{font-weight:700;font-size:14px;margin-top:6px;min-height:1em;} .score{font-weight:800;font-size:18px;margin-top:8px;}
+  .next{display:flex;justify-content:space-between;gap:16px;background:var(--panel);border-radius:var(--radius);padding:20px 24px;align-items:center;flex-wrap:wrap;} .next a{font-weight:800;font-size:17px;}
+  .checkbox-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:700;color:var(--muted);font-size:14px;} .checkbox-row input{width:20px;height:20px;accent-color:var(--accent);}
+  @media (max-width:860px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{position:fixed;left:0;top:0;z-index:40;width:82%;max-width:320px;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);}
+    .sidebar.open{transform:translateX(0);}
+    .menu-btn{display:inline-flex;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:20px;padding:6px 12px;border-radius:12px;cursor:pointer;}
+    main{padding:24px 18px;}
+    .scrim{position:fixed;inset:0;background:oklch(20% 0.05 300 / .4);z-index:35;display:none;} .scrim.show{display:block;}
+  }
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="dot">Py</div><div><h1>Calculator</h1><small>Project 01 of 50</small></div></div>
+    <span class="level-pill">🌱 Beginner</span>
+    <nav id="nav">
+      <a href="#overview"><span class="num">01</span> Project Overview</a>
+      <a href="#objectives"><span class="num">02</span> Learning Objectives</a>
+      <a href="#prereqs"><span class="num">03</span> Prerequisites</a>
+      <a href="#setup"><span class="num">04</span> Setup Instructions</a>
+      <a href="#concepts"><span class="num">05</span> Key Concepts</a>
+      <a href="#glossary"><span class="num">06</span> Glossary</a>
+      <a href="#predict"><span class="num">07</span> Predict the Output</a>
+      <a href="#source"><span class="num">08</span> Complete Source Code</a>
+      <a href="#walkthrough"><span class="num">09</span> Code Walkthrough</a>
+      <a href="#run"><span class="num">10</span> Execution</a>
+      <a href="#expected"><span class="num">11</span> Expected Output</a>
+      <a href="#errors"><span class="num">12</span> Common Errors</a>
+      <a href="#realworld"><span class="num">13</span> Real-World Uses</a>
+      <a href="#deepdive"><span class="num">14</span> Deep Dive</a>
+      <a href="#challenges"><span class="num">15</span> Practice Challenges</a>
+      <a href="#quiz"><span class="num">16</span> Knowledge Check</a>
+      <a href="#next"><span class="num">17</span> Next Project</a>
+    </nav>
+  </aside>
+  <div>
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+      <div class="progress-wrap"><div class="label">Your progress · <span id="pct">0%</span></div><div class="bar"><span id="barFill"></span></div></div>
+      <button class="toggle" id="themeToggle" aria-label="Toggle light or dark mode">🌙 Dark</button>
+    </header>
+    <main>
+      <section id="overview"><div class="hero"><span class="eyebrow">Beginner · Console App</span><h2>Build a Calculator in Python</h2><p>Your very first program: a friendly console calculator that takes two numbers and an operator, then prints the answer. No libraries, no setup headaches, just Python and you.</p></div><p>By the end you'll understand how a program takes input, makes a decision, does some maths, and shows a result. That input, decide, compute, output loop is the heartbeat of almost every program ever written.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="overview" /> Mark this section complete</div></section>
+      <section id="objectives"><span class="eyebrow">Section 02</span><h2>Learning Objectives</h2><p>By the end of this project you will be able to:</p><ul class="obj"><li>Read input with <code>input()</code> and convert it to a number.</li><li>Write and call your own <strong>functions</strong> with parameters and return values.</li><li>Use <code>if / elif / else</code> to choose between actions.</li><li>Catch a bad value with <code>try / except</code> so your program doesn't crash.</li><li>Guard against dividing by zero and explain the problem kindly.</li></ul><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="objectives" /> Mark this section complete</div></section>
+      <section id="prereqs"><span class="eyebrow">Section 03</span><h2>Prerequisites</h2><table><tr><th>You need</th><th>Details</th></tr><tr><td>Python 3.11+</td><td>Check with <code>python --version</code>.</td></tr><tr><td>A text editor</td><td>VS Code, or anything that saves <code>.py</code> files.</td></tr><tr><td>Zero prior code</td><td>Seriously. This is a first program.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="prereqs" /> Mark this section complete</div></section>
+      <section id="setup"><span class="eyebrow">Section 04</span><h2>Setup Instructions</h2><ol><li>Make a folder and open it in your editor.</li><li>Create a file called <code>main.py</code>.</li><li>Paste in the source code from Section 8.</li><li>Open a terminal in that folder.</li></ol><div class="callout tip">💡 No <code>pip install</code> needed. This project uses only what ships with Python.</div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="setup" /> Mark this section complete</div></section>
+      <section id="concepts"><span class="eyebrow">Section 05</span><h2>Key Concepts</h2><h3>1. Everything from <code>input()</code> is text</h3><p>Typing <code>5</code> gives you the <em>string</em> <code>"5"</code>, not the number 5. To do maths we convert with <code>float()</code>.</p><h3>2. Functions are reusable machines</h3><p>A function takes something in, does a job, and hands something back. We build small functions like <code>get_number()</code> and <code>calculate()</code>.</p><h3>3. try / except stops crashes</h3><p>If someone types "banana", <code>float("banana")</code> would crash. We wrap it in <code>try/except</code> to catch the mistake and ask again.</p><div class="diagram"><pre>[ Start ]
+   -> Ask for number 1
+   -> Ask for operator (+ - * /)
+   -> Ask for number 2
+   -> Which operator?  --calculate-->  Show result
+   -> [ End ]</pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="concepts" /> Mark this section complete</div></section>
+      <section id="glossary"><span class="eyebrow">Section 06</span><h2>Glossary</h2><table><tr><th>Term</th><th>Plain-English meaning</th></tr><tr><td><strong>String</strong></td><td>Text in quotes, like <code>"5"</code>.</td></tr><tr><td><strong>Float</strong></td><td>A number with a decimal point, like <code>3.14</code>.</td></tr><tr><td><strong>Function</strong></td><td>A named block of code you can run on demand.</td></tr><tr><td><strong>Parameter</strong></td><td>A value you hand to a function.</td></tr><tr><td><strong>Return</strong></td><td>The value a function gives back.</td></tr><tr><td><strong>Exception</strong></td><td>Python's way of saying something went wrong.</td></tr><tr><td><strong>Loop</strong></td><td>Code that repeats until told to stop.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="glossary" /> Mark this section complete</div></section>
+      <section id="predict"><span class="eyebrow">Section 07</span><h2>Predict the Output</h2><p>Read this snippet. What do you think it prints? Decide before you reveal.</p><div class="code"><div class="head"><span>predict.py</span><button class="copy">Copy</button></div><pre><code>def add(a, b):
+    return a + b
+
+print(add(2, 3) * 2)</code></pre></div><details class="reveal"><summary>Reveal the answer</summary><p><strong>10.</strong> <code>add(2, 3)</code> returns <code>5</code>, then <code>5 * 2</code> is <code>10</code>.</p></details><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="predict" /> Mark this section complete</div></section>
+      <section id="source"><span class="eyebrow">Section 08</span><h2>Complete Source Code</h2><p>This is the entire program. It matches the repository exactly.</p><div class="code"><div class="head"><span>main.py</span><button class="copy">Copy</button></div><pre><code>"""Beginner Calculator.
+
+Asks the user for two numbers and one operator (+, -, *, /),
+then prints the result. Uses only Python's built-in features.
+"""
+
+
+def get_number(prompt):
+    """Ask for a number, repeating until the user types a valid one."""
+    while True:
+        raw_value = input(prompt)
+        try:
+            return float(raw_value)
+        except ValueError:
+            print("  That doesn't look like a number. Try again.")
+
+
+def get_operator():
+    """Ask for one of the four supported operators."""
+    valid_operators = ("+", "-", "*", "/")
+    while True:
+        operator = input("Choose an operator (+, -, *, /): ").strip()
+        if operator in valid_operators:
+            return operator
+        print("  Please type one of: + - * /")
+
+
+def calculate(first_number, operator, second_number):
+    """Return the result of applying the operator to the two numbers."""
+    if operator == "+":
+        return first_number + second_number
+    if operator == "-":
+        return first_number - second_number
+    if operator == "*":
+        return first_number * second_number
+    if operator == "/":
+        if second_number == 0:
+            return "Error: you cannot divide by zero."
+        return first_number / second_number
+    return "Error: unknown operator."
+
+
+def main():
+    """Run the calculator once, from start to finish."""
+    print("=" * 40)
+    print("        Welcome to the Calculator")
+    print("=" * 40)
+
+    first_number = get_number("Enter the first number:  ")
+    operator = get_operator()
+    second_number = get_number("Enter the second number: ")
+
+    result = calculate(first_number, operator, second_number)
+
+    print("-" * 40)
+    print(f"Result: {first_number} {operator} {second_number} = {result}")
+    print("-" * 40)
+
+
+if __name__ == "__main__":
+    main()</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="source" /> Mark this section complete</div></section>
+      <section id="walkthrough"><span class="eyebrow">Section 09</span><h2>Code Walkthrough</h2><h3><code>get_number()</code> — safe input</h3><p>The <code>while True</code> loop keeps asking until it succeeds. <code>float(raw_value)</code> tries to convert the text; if it fails, <code>except ValueError</code> runs and the loop goes again.</p><h3><code>get_operator()</code> — only valid choices</h3><p>We store the four symbols in a tuple and only return when the input is one of them. <code>.strip()</code> removes stray spaces.</p><h3><code>calculate()</code> — the maths</h3><p>A chain of <code>if</code> checks picks the operation. Before dividing, we check for zero and return a message.</p><h3><code>main()</code> and <code>if __name__</code></h3><p><code>main()</code> wires everything together; the final <code>if</code> runs it only when the file is started directly.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="walkthrough" /> Mark this section complete</div></section>
+      <section id="run"><span class="eyebrow">Section 10</span><h2>Execution Instructions</h2><div class="code"><div class="head"><span>terminal</span><button class="copy">Copy</button></div><pre><code>python main.py</code></pre></div><p>Then follow the prompts: number, operator, number.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="run" /> Mark this section complete</div></section>
+      <section id="expected"><span class="eyebrow">Section 11</span><h2>Expected Output</h2><div class="code"><div class="head"><span>sample run</span><button class="copy">Copy</button></div><pre><code>========================================
+        Welcome to the Calculator
+========================================
+Enter the first number:  12
+Choose an operator (+, -, *, /): *
+Enter the second number: 4
+----------------------------------------
+Result: 12.0 * 4.0 = 48.0
+----------------------------------------</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="expected" /> Mark this section complete</div></section>
+      <section id="errors"><span class="eyebrow">Section 12</span><h2>Common Errors</h2><table><tr><th>Error</th><th>Cause</th><th>Fix</th></tr><tr><td><code>ValueError</code></td><td>Text where a number was expected.</td><td>The loop handles it; just type a number.</td></tr><tr><td><code>ZeroDivisionError</code></td><td>Dividing by zero.</td><td>We check for it and return a message.</td></tr><tr><td><code>SyntaxError</code></td><td>A typo, often a missing colon.</td><td>Read the line number Python points to.</td></tr><tr><td><code>IndentationError</code></td><td>Mixed tabs and spaces.</td><td>Use 4 spaces per level.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="errors" /> Mark this section complete</div></section>
+      <section id="realworld"><span class="eyebrow">Section 13</span><h2>Real-World Applications</h2><p>The pattern you built (validate input, choose an action, compute, report) is how a checkout totals a cart, a bank applies interest, and a spreadsheet evaluates a formula. Input validation is a skill you'll use in every serious program.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="realworld" /> Mark this section complete</div></section>
+      <section id="deepdive"><span class="eyebrow">Section 14</span><h2>Deep Dive: why <code>float</code> and not <code>int</code>?</h2><p>We use <code>float()</code> so users can enter decimals like <code>3.5</code>. Floats are binary, which is why <code>0.1 + 0.2</code> equals <code>0.30000000000000004</code>. For money you'd reach for <code>decimal.Decimal</code>. The Advanced variant explores precision further.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="deepdive" /> Mark this section complete</div></section>
+      <section id="challenges"><span class="eyebrow">Section 15</span><h2>Practice Challenges</h2><ol><li><strong>Easy:</strong> Add a power operator <code>**</code>.</li><li><strong>Easy:</strong> Ask "Calculate again? (y/n)" and loop.</li><li><strong>Medium:</strong> Add remainder <code>%</code> with its own zero check.</li><li><strong>Medium:</strong> Round non-whole results to 2 decimals.</li><li><strong>Spicy:</strong> Let the user type <code>12 * 4</code> on one line and split it yourself.</li></ol><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="challenges" /> Mark this section complete</div></section>
+      <section id="quiz"><span class="eyebrow">Section 16</span><h2>Knowledge Check</h2><div class="quiz" id="quiz"><div class="q" data-answer="1"><p class="stem">1. What type does <code>input()</code> always return?</p><button class="opt">An integer</button><button class="opt">A string</button><button class="opt">A float</button><div class="fb"></div></div><div class="q" data-answer="2"><p class="stem">2. Why do we wrap <code>float(raw_value)</code> in <code>try/except</code>?</p><button class="opt">To make it faster</button><button class="opt">Because floats are optional</button><button class="opt">So bad input doesn't crash the program</button><div class="fb"></div></div><div class="q" data-answer="0"><p class="stem">3. What does <code>calculate(6, "/", 0)</code> return?</p><button class="opt">An error message string</button><button class="opt">Zero</button><button class="opt">It crashes</button><div class="fb"></div></div></div><div class="score" id="score"></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="quiz" /> Mark this section complete</div></section>
+      <section id="next"><span class="eyebrow">Section 17</span><h2>Next Project</h2><div class="next"><div><p style="margin:0;color:var(--muted);font-weight:700;">Up next in Project 01</p><p style="margin:4px 0 0;">Rebuild this calculator with a menu, validation, and saved history.</p></div><a href="../Intermediate/guide.html">Intermediate →</a></div><p style="margin-top:18px;">Or jump ahead to <a href="../../02-To-Do-List/Beginner/guide.html">Project 02 · To-Do List →</a></p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="next" /> Mark this section complete</div></section>
+    </main>
+  </div>
+</div>
+<script>
+  const root=document.documentElement,tbtn=document.getElementById('themeToggle');
+  const savedMode=localStorage.getItem('calc-b-mode'); if(savedMode)root.setAttribute('data-mode',savedMode);
+  const syncBtn=()=>tbtn.textContent=root.getAttribute('data-mode')==='dark'?'☀️ Light':'🌙 Dark'; syncBtn();
+  tbtn.addEventListener('click',()=>{const next=root.getAttribute('data-mode')==='dark'?'light':'dark';root.setAttribute('data-mode',next);localStorage.setItem('calc-b-mode',next);syncBtn();});
+  const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('scrim');
+  document.getElementById('menuBtn').addEventListener('click',()=>{sidebar.classList.add('open');scrim.classList.add('show');});
+  scrim.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');});
+  const KW=new Set("def return if elif else while for in try except import from as with class True False None and or not is print input float int str".split(" "));
+  document.querySelectorAll('.code code').forEach(block=>{const raw=block.textContent;const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');let html='';raw.split('\n').forEach((line,i)=>{if(i)html+='\n';const c=line.indexOf('#');let code=line,comment='';if(c>-1&&(line.match(/"/g)||[]).length%2===0){code=line.slice(0,c);comment=line.slice(c);}let out=esc(code).replace(/(&quot;|&#39;|")(?:[^"']*)\1|'[^']*'/g,m=>`<span class="tok-str">${m}</span>`).replace(/\b(\d+\.?\d*)\b/g,'<span class="tok-num">$1</span>').replace(/\b([A-Za-z_]\w*)\b/g,m=>KW.has(m)?`<span class="tok-kw">${m}</span>`:m).replace(/([A-Za-z_]\w*)(\()/g,'<span class="tok-fn">$1</span>$2');html+=out+(comment?`<span class="tok-com">${esc(comment)}</span>`:'');});block.innerHTML=html;});
+  document.querySelectorAll('.code').forEach(box=>{const btn=box.querySelector('.copy'),code=box.querySelector('code');btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.textContent);btn.textContent='Copied ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1600);}catch(e){btn.textContent='Copy failed';}});});
+  let answered=0,correct=0;document.querySelectorAll('#quiz .q').forEach(q=>{const ans=+q.dataset.answer,opts=[...q.querySelectorAll('.opt')],fb=q.querySelector('.fb');opts.forEach((opt,idx)=>opt.addEventListener('click',()=>{if(q.dataset.done)return;q.dataset.done='1';answered++;if(idx===ans){opt.classList.add('correct');fb.textContent='Correct!';fb.style.color='oklch(50% 0.14 150)';correct++;}else{opt.classList.add('wrong');opts[ans].classList.add('correct');fb.textContent='Not quite. The highlighted answer is right.';fb.style.color='var(--accent)';}if(answered===3){document.getElementById('score').textContent=`You scored ${correct} / 3.`;}}));});
+  const marks=[...document.querySelectorAll('.mark')],navLinks=[...document.querySelectorAll('#nav a')],KEY='calc-b-progress',state=JSON.parse(localStorage.getItem(KEY)||'{}');
+  const refresh=()=>{const done=marks.filter(m=>m.checked).length,pct=Math.round(done/marks.length*100);document.getElementById('barFill').style.width=pct+'%';document.getElementById('pct').textContent=pct+'%';marks.forEach(m=>{const l=document.querySelector(`#nav a[href="#${m.dataset.sec}"]`);if(l)l.classList.toggle('done',m.checked);});};
+  marks.forEach(m=>{m.checked=!!state[m.dataset.sec];m.addEventListener('change',()=>{state[m.dataset.sec]=m.checked;localStorage.setItem(KEY,JSON.stringify(state));refresh();});});refresh();
+  const sections=[...document.querySelectorAll('main section')];const spy=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(l=>l.classList.remove('active'));const link=document.querySelector(`#nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active');}});},{rootMargin:'-45% 0px -50% 0px'});sections.forEach(s=>spy.observe(s));
+  navLinks.forEach(l=>l.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');}));
+</script>
+</body>
+</html>
