@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculator · Advanced · Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root, html[data-mode="dark"]{--bg:oklch(17% 0.015 265);--surface:oklch(21% 0.018 265);--panel:oklch(25% 0.02 265);--text:oklch(90% 0.015 250);--muted:oklch(66% 0.02 255);--accent:oklch(68% 0.14 245);--accent-2:oklch(72% 0.15 155);--code-bg:oklch(15% 0.015 265);--border:oklch(32% 0.02 265);--radius:6px;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",ui-monospace,monospace;}
+  html[data-mode="light"]{--bg:oklch(97% 0.006 255);--surface:oklch(99% 0.004 255);--panel:oklch(95% 0.008 255);--text:oklch(26% 0.02 265);--muted:oklch(48% 0.02 265);--accent:oklch(52% 0.16 250);--code-bg:oklch(20% 0.015 265);--border:oklch(88% 0.01 255);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15.5px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{text-wrap:balance;} p{text-wrap:pretty;}
+  a{color:var(--accent);text-decoration:none;font-weight:500;} a:hover{text-decoration:underline;}
+  .layout{display:grid;grid-template-columns:270px 1fr;min-height:100vh;}
+  .sidebar{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:20px 14px;background:var(--surface);border-right:1px solid var(--border);}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .brand .dot{width:32px;height:32px;border-radius:6px;background:var(--code-bg);border:1px solid var(--accent);display:grid;place-items:center;color:var(--accent);font-weight:800;font-size:15px;font-family:var(--font-mono);}
+  .brand h1{font-size:15px;margin:0;font-family:var(--font-mono);} .brand small{color:var(--muted);font-weight:500;}
+  .level-pill{display:inline-block;margin:13px 0 15px;padding:3px 10px;border-radius:5px;background:var(--code-bg);border:1px solid var(--accent);color:var(--accent);font-weight:700;font-size:12px;font-family:var(--font-mono);}
+  nav a{display:flex;gap:9px;align-items:center;padding:6px 10px;border-radius:5px;color:var(--muted);font-weight:500;font-size:13.5px;margin-bottom:1px;font-family:var(--font-mono);}
+  nav a .num{font-size:11px;opacity:.6;min-width:18px;} nav a:hover{background:var(--panel);color:var(--text);text-decoration:none;}
+  nav a.active{background:color-mix(in oklch,var(--accent) 18%,transparent);color:var(--accent);border-left:2px solid var(--accent);}
+  nav a.done .num::after{content:" ✓";color:var(--accent-2);}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:11px 28px;background:var(--surface);border-bottom:1px solid var(--border);}
+  .progress-wrap{flex:1;} .progress-wrap .label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px;font-family:var(--font-mono);}
+  .bar{height:6px;border-radius:3px;background:var(--code-bg);overflow:hidden;border:1px solid var(--border);}
+  .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s cubic-bezier(.22,1,.36,1);}
+  .toggle{border:1px solid var(--border);background:var(--panel);color:var(--text);font-family:var(--font-mono);font-weight:600;font-size:13px;padding:7px 12px;border-radius:5px;cursor:pointer;}
+  .toggle:hover{border-color:var(--accent);} .menu-btn{display:none;}
+  main{padding:32px clamp(20px,5vw,60px);max-width:880px;}
+  section{scroll-margin-top:74px;margin-bottom:50px;}
+  .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px;font-family:var(--font-mono);}
+  h2{font-size:clamp(23px,3.2vw,29px);font-weight:800;margin:.15em 0 .5em;letter-spacing:-.01em;font-family:var(--font-mono);}
+  h3{font-size:18px;font-weight:700;margin:1.4em 0 .4em;font-family:var(--font-mono);}
+  p{max-width:74ch;} ul,ol{max-width:72ch;}
+  code{font-family:var(--font-mono);font-size:.88em;background:var(--code-bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);}
+  .hero{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:28px 28px;margin-bottom:14px;} .hero h2{margin-top:.1em;}
+  .callout{padding:15px 18px;margin:18px 0;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent-2);}
+  .obj{display:grid;gap:8px;padding:0;list-style:none;}
+  .obj li{padding:11px 15px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);display:flex;gap:11px;align-items:flex-start;font-weight:500;}
+  .obj li::before{content:">";color:var(--accent-2);font-family:var(--font-mono);font-weight:800;}
+  .code{position:relative;background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);margin:16px 0;overflow:hidden;}
+  .code .head{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);font-weight:600;font-family:var(--font-mono);}
+  .code pre{margin:0;padding:15px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:12.8px;line-height:1.6;color:var(--text);}
+  .copy{border:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:var(--font-mono);}
+  .copy:hover{color:var(--accent);border-color:var(--accent);} .copy.copied{color:var(--accent-2);}
+  .tok-kw{color:oklch(72% 0.15 20);} .tok-str{color:oklch(74% 0.13 155);} .tok-com{color:oklch(55% 0.02 255);font-style:italic;} .tok-num{color:oklch(76% 0.11 250);} .tok-fn{color:oklch(78% 0.13 300);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;font-variant-numeric:tabular-nums;}
+  th,td{border:1px solid var(--border);padding:9px 12px;text-align:left;} th{background:var(--panel);font-weight:700;font-family:var(--font-mono);}
+  .diagram{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:16px 0;} .diagram pre{margin:0;font-family:var(--font-mono);font-size:12.5px;color:var(--accent-2);overflow-x:auto;}
+  details.reveal{padding:4px 18px;margin:14px 0;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);}
+  details.reveal summary{cursor:pointer;font-weight:700;padding:12px 0;font-family:var(--font-mono);}
+  .quiz{display:grid;gap:15px;} .q{padding:17px 19px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);}
+  .q p.stem{font-weight:700;margin:0 0 12px;}
+  .q .opt{display:block;width:100%;text-align:left;border:1px solid var(--border);background:var(--code-bg);color:var(--text);padding:10px 13px;border-radius:5px;margin-bottom:8px;cursor:pointer;font-family:var(--font-mono);font-size:13.5px;font-weight:500;transition:border-color .2s;}
+  .q .opt:hover{border-color:var(--accent);}
+  .q .opt.correct{background:color-mix(in oklch,var(--accent-2) 22%,var(--code-bg));border-color:var(--accent-2);}
+  .q .opt.wrong{background:color-mix(in oklch,oklch(60% 0.18 20) 22%,var(--code-bg));border-color:oklch(60% 0.18 20);}
+  .q .fb{font-weight:600;font-size:13px;margin-top:6px;min-height:1em;} .score{font-weight:800;font-size:16px;margin-top:8px;font-family:var(--font-mono);}
+  .next{display:flex;justify-content:space-between;gap:16px;padding:20px 24px;border-radius:var(--radius);align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);} .next a{font-weight:800;font-size:16px;font-family:var(--font-mono);}
+  .checkbox-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600;color:var(--muted);font-size:13px;font-family:var(--font-mono);} .checkbox-row input{width:18px;height:18px;accent-color:var(--accent);}
+  @media (max-width:860px){.layout{grid-template-columns:1fr;}.sidebar{position:fixed;left:0;top:0;z-index:40;width:82%;max-width:320px;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);}.sidebar.open{transform:translateX(0);}.menu-btn{display:inline-flex;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:19px;padding:6px 12px;border-radius:5px;cursor:pointer;}main{padding:22px 16px;}.scrim{position:fixed;inset:0;background:oklch(10% 0.02 265 / .6);z-index:35;display:none;}.scrim.show{display:block;}}
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="dot">Py</div><div><h1>Calculator</h1><small>Project 01 of 50</small></div></div>
+    <span class="level-pill">🚀 Advanced</span>
+    <nav id="nav">
+      <a href="#overview"><span class="num">01</span> Project Overview</a>
+      <a href="#objectives"><span class="num">02</span> Learning Objectives</a>
+      <a href="#prereqs"><span class="num">03</span> Prerequisites</a>
+      <a href="#setup"><span class="num">04</span> Setup Instructions</a>
+      <a href="#concepts"><span class="num">05</span> Key Concepts</a>
+      <a href="#glossary"><span class="num">06</span> Glossary</a>
+      <a href="#predict"><span class="num">07</span> Predict the Output</a>
+      <a href="#source"><span class="num">08</span> Complete Source Code</a>
+      <a href="#walkthrough"><span class="num">09</span> Code Walkthrough</a>
+      <a href="#run"><span class="num">10</span> Execution</a>
+      <a href="#expected"><span class="num">11</span> Expected Output</a>
+      <a href="#errors"><span class="num">12</span> Common Errors</a>
+      <a href="#realworld"><span class="num">13</span> Real-World Uses</a>
+      <a href="#deepdive"><span class="num">14</span> Deep Dive</a>
+      <a href="#challenges"><span class="num">15</span> Practice Challenges</a>
+      <a href="#quiz"><span class="num">16</span> Knowledge Check</a>
+      <a href="#next"><span class="num">17</span> Next Project</a>
+    </nav>
+  </aside>
+  <div>
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+      <div class="progress-wrap"><div class="label">progress · <span id="pct">0%</span></div><div class="bar"><span id="barFill"></span></div></div>
+      <button class="toggle" id="themeToggle" aria-label="Toggle light or dark mode">☀️ Light</button>
+    </header>
+    <main>
+      <section id="overview"><div class="hero"><span class="eyebrow">Advanced · CLI + Tkinter GUI</span><h2>Production-Quality Calculator</h2><p>Evaluate whole expressions like <code>2 + 3 * (4 - 1) ** 2</code> safely, without <code>eval()</code>. A hand-written tokenizer feeds the shunting-yard algorithm, wrapped in a <code>Calculator</code> class with logging and a custom exception, shipped with a Tkinter GUI and a pytest suite.</p></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="overview" /> Mark this section complete</div></section>
+      <section id="objectives"><span class="eyebrow">Section 02</span><h2>Learning Objectives</h2><ul class="obj"><li>Tokenize a string and parse it with the shunting-yard algorithm.</li><li>Evaluate Reverse Polish Notation (RPN).</li><li>Design with OOP: dataclasses, a service class, custom exceptions.</li><li>Apply full type hints and structured <code>logging</code>.</li><li>Separate concerns: engine vs interface vs config.</li><li>Write and run a <code>pytest</code> suite.</li></ul><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="objectives" /> Mark this section complete</div></section>
+      <section id="prereqs"><span class="eyebrow">Section 03</span><h2>Prerequisites</h2><p>Comfort with classes, virtual environments, <code>pip</code>, and the command line. Familiarity with the Intermediate variant's module split.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="prereqs" /> Mark this section complete</div></section>
+      <section id="setup"><span class="eyebrow">Section 04</span><h2>Setup Instructions</h2><div class="code"><div class="head"><span>terminal</span><button class="copy">Copy</button></div><pre><code>python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt</code></pre></div><div class="callout">Tkinter ships with CPython, so the only dependency is <code>pytest</code> for tests.</div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="setup" /> Mark this section complete</div></section>
+      <section id="concepts"><span class="eyebrow">Section 05</span><h2>Key Concepts</h2><h3>Tokenizing</h3><p>Turns <code>"2 + 3"</code> into <code>[NUMBER 2, OP +, NUMBER 3]</code>.</p><h3>Shunting-yard</h3><p>Reorders infix tokens into RPN, respecting precedence (<code>**</code> &gt; <code>* / %</code> &gt; <code>+ -</code>), associativity (<code>**</code> is right-associative), parentheses, and unary minus.</p><h3>RPN evaluation</h3><p>A stack: push numbers, pop operands when you hit an operator.</p><h3>Why no <code>eval</code>?</h3><p><code>eval(user_input)</code> can run arbitrary code. A parser is safe by construction.</p><div class="diagram"><pre>"2 + 3 * 4"
+  -> tokenize  -> [2] [+] [3] [*] [4]
+  -> shunting-yard -> RPN: 2 3 4 * +
+  -> eval on a stack -> 14.0</pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="concepts" /> Mark this section complete</div></section>
+      <section id="glossary"><span class="eyebrow">Section 06</span><h2>Glossary</h2><table><tr><th>Term</th><th>Meaning</th></tr><tr><td><strong>Token</strong></td><td>A smallest meaningful unit (number, operator, paren).</td></tr><tr><td><strong>RPN</strong></td><td>Postfix notation: operator after operands.</td></tr><tr><td><strong>Shunting-yard</strong></td><td>Dijkstra's infix-to-RPN algorithm.</td></tr><tr><td><strong>Associativity</strong></td><td>Which side binds first for equal precedence.</td></tr><tr><td><strong>Dataclass</strong></td><td>A class that auto-generates <code>__init__</code> etc.</td></tr><tr><td><strong>Type hint</strong></td><td>An annotation like <code>-&gt; float</code> describing types.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="glossary" /> Mark this section complete</div></section>
+      <section id="predict"><span class="eyebrow">Section 07</span><h2>Predict the Output</h2><div class="code"><div class="head"><span>predict.py</span><button class="copy">Copy</button></div><pre><code>print(2 ** 3 ** 2)</code></pre></div><details class="reveal"><summary>Reveal the answer</summary><p><code>512</code>. <code>**</code> is right-associative, so it is <code>2 ** (3 ** 2) = 2 ** 9</code>.</p></details><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="predict" /> Mark this section complete</div></section>
+      <section id="source"><span class="eyebrow">Section 08</span><h2>Complete Source Code</h2><p>The engine's public API lives in <code>models.py</code>; the GUI in <code>gui.py</code>; entry point in <code>main.py</code>; settings and logging in <code>config.py</code>; tests in <code>tests.py</code>. Core of <code>models.py</code>:</p><div class="code"><div class="head"><span>models.py (core)</span><button class="copy">Copy</button></div><pre><code>class CalculatorError(Exception):
+    """Raised when an expression cannot be parsed or evaluated."""
+
+
+_PRECEDENCE = {
+    "u-": (4, True),   # unary minus
+    "**": (3, True),
+    "*": (2, False), "/": (2, False), "%": (2, False),
+    "+": (1, False), "-": (1, False),
+}
+
+
+def eval_rpn(rpn):
+    """Evaluate a Reverse Polish Notation token list."""
+    stack = []
+    for token in rpn:
+        if token.kind == "NUMBER":
+            stack.append(float(token.value))
+            continue
+        op = token.value
+        if op == "u-":
+            stack.append(-stack.pop())
+        else:
+            right = stack.pop()
+            left = stack.pop()
+            stack.append(_apply(op, right, left))
+    if len(stack) != 1:
+        raise CalculatorError("Invalid expression.")
+    return stack[0]
+
+
+class Calculator:
+    """A safe arithmetic calculator with an in-memory history."""
+
+    def evaluate(self, expression: str) -> float:
+        if not expression or not expression.strip():
+            raise CalculatorError("Expression is empty.")
+        tokens = tokenize(expression)
+        rpn = to_rpn(tokens)
+        result = eval_rpn(rpn)
+        self._history.append(HistoryEntry(expression.strip(), result))
+        return result</code></pre></div><p>The full tokenizer, shunting-yard <code>to_rpn</code>, GUI, and tests are in the repository files next to this guide.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="source" /> Mark this section complete</div></section>
+      <section id="walkthrough"><span class="eyebrow">Section 09</span><h2>Code Walkthrough</h2><p><code>config.py</code> centralizes app metadata and sets up <code>logging</code>. <code>models.py</code> is the pure engine: <code>Token</code> (a frozen dataclass), <code>tokenize</code> (a lexer), <code>to_rpn</code> (shunting-yard, detecting unary minus from the previous token), <code>eval_rpn</code> (stack machine), and the <code>Calculator</code> service holding history via <code>HistoryEntry</code>. <code>gui.py</code> is a thin Tkinter layer that only builds widgets and calls <code>Calculator.evaluate</code>. <code>main.py</code> parses args and dispatches to REPL, GUI, or one-shot evaluation. The engine never imports the UI, so it stays testable in isolation.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="walkthrough" /> Mark this section complete</div></section>
+      <section id="run"><span class="eyebrow">Section 10</span><h2>Execution Instructions</h2><div class="code"><div class="head"><span>terminal</span><button class="copy">Copy</button></div><pre><code>python main.py            # interactive REPL
+python main.py --gui      # Tkinter calculator
+python main.py "2 + 3*4"  # evaluate once -> 14.0
+pytest tests.py           # run the test suite</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="run" /> Mark this section complete</div></section>
+      <section id="expected"><span class="eyebrow">Section 11</span><h2>Expected Output</h2><div class="code"><div class="head"><span>sample run</span><button class="copy">Copy</button></div><pre><code>$ python main.py "2 + 3 * (4 - 1) ** 2"
+29.0
+
+$ pytest tests.py
+============ test session starts ============
+collected 17 items
+tests.py .................                 [100%]
+============= 17 passed in 0.05s ============</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="expected" /> Mark this section complete</div></section>
+      <section id="errors"><span class="eyebrow">Section 12</span><h2>Common Errors</h2><table><tr><th>Error</th><th>Cause</th><th>Fix</th></tr><tr><td><code>Unexpected character</code></td><td>Letters/symbols in the expression</td><td>Use only numbers, <code>+ - * / % **</code>, parens.</td></tr><tr><td><code>Unbalanced parentheses</code></td><td>Mismatched <code>( )</code></td><td>Balance your brackets.</td></tr><tr><td><code>TclError</code> on <code>--gui</code></td><td>No display (headless)</td><td>Run the GUI on a desktop session.</td></tr><tr><td><code>ModuleNotFoundError: pytest</code></td><td>Deps not installed</td><td><code>pip install -r requirements.txt</code>.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="errors" /> Mark this section complete</div></section>
+      <section id="realworld"><span class="eyebrow">Section 13</span><h2>Real-World Applications</h2><p>Tokenizers and parsers power compilers, SQL engines, spreadsheet formulas, template languages, and search-query parsing. The engine/UI separation here mirrors how real apps keep business logic independent of any front end. Never trusting user input (no <code>eval</code>) is a core security practice.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="realworld" /> Mark this section complete</div></section>
+      <section id="deepdive"><span class="eyebrow">Section 14</span><h2>Deep Dive: precedence and associativity</h2><p>The <code>_PRECEDENCE</code> table encodes both a level and a right-associativity flag. The shunting-yard loop pops higher-or-equal-precedence operators before pushing the current one, except for right-associative operators (<code>**</code>, unary minus), where it stops at strictly-higher precedence. That single rule is why <code>2 ** 3 ** 2</code> groups as <code>2 ** (3 ** 2)</code>. Extend the table with functions or constants to grow the language.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="deepdive" /> Mark this section complete</div></section>
+      <section id="challenges"><span class="eyebrow">Section 15</span><h2>Practice Challenges</h2><ol><li>Add functions like <code>sqrt()</code> and <code>abs()</code> to the grammar.</li><li>Persist history to <code>data/history.json</code> like the Intermediate variant.</li><li>Add keyboard bindings for every operator in the GUI.</li><li>Support constants <code>pi</code> and <code>e</code>.</li><li>Add a <code>--json</code> flag that prints results as JSON, and test it.</li></ol><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="challenges" /> Mark this section complete</div></section>
+      <section id="quiz"><span class="eyebrow">Section 16</span><h2>Knowledge Check</h2><div class="quiz" id="quiz"><div class="q" data-answer="1"><p class="stem">1. Why avoid <code>eval()</code> on user input?</p><button class="opt">It's slower than a parser</button><button class="opt">It can execute arbitrary code</button><button class="opt">It can't do maths</button><div class="fb"></div></div><div class="q" data-answer="2"><p class="stem">2. What does shunting-yard convert infix into?</p><button class="opt">Bytecode</button><button class="opt">A syntax tree</button><button class="opt">RPN (postfix)</button><div class="fb"></div></div><div class="q" data-answer="0"><p class="stem">3. How is <code>2 ** 3 ** 2</code> grouped and why?</p><button class="opt">2 ** (3 ** 2), because ** is right-associative</button><button class="opt">(2 ** 3) ** 2, left to right</button><button class="opt">It is a syntax error</button><div class="fb"></div></div></div><div class="score" id="score"></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="quiz" /> Mark this section complete</div></section>
+      <section id="next"><span class="eyebrow">Section 17</span><h2>Next Project</h2><div class="next"><div><p style="margin:0;color:var(--muted);font-weight:600;">Project 01 complete at all three levels 🎉</p><p style="margin:4px 0 0;">Apply CRUD and persistence to a new domain.</p></div><a href="../../02-To-Do-List/Beginner/guide.html">Project 02 →</a></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="next" /> Mark this section complete</div></section>
+    </main>
+  </div>
+</div>
+<script>
+  const root=document.documentElement,tbtn=document.getElementById('themeToggle');
+  const savedMode=localStorage.getItem('calc-a-mode'); if(savedMode)root.setAttribute('data-mode',savedMode);
+  const syncBtn=()=>tbtn.textContent=root.getAttribute('data-mode')==='dark'?'☀️ Light':'🌙 Dark'; syncBtn();
+  tbtn.addEventListener('click',()=>{const next=root.getAttribute('data-mode')==='dark'?'light':'dark';root.setAttribute('data-mode',next);localStorage.setItem('calc-a-mode',next);syncBtn();});
+  const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('scrim');
+  document.getElementById('menuBtn').addEventListener('click',()=>{sidebar.classList.add('open');scrim.classList.add('show');});
+  scrim.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');});
+  const KW=new Set("def return if elif else while for in try except import from as with class True False None and or not is print input float int str self".split(" "));
+  document.querySelectorAll('.code code').forEach(block=>{const raw=block.textContent;const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');let html='';raw.split('\n').forEach((line,i)=>{if(i)html+='\n';const c=line.indexOf('#');let code=line,comment='';if(c>-1&&(line.match(/"/g)||[]).length%2===0){code=line.slice(0,c);comment=line.slice(c);}let out=esc(code).replace(/(&quot;|&#39;|")(?:[^"']*)\1|'[^']*'/g,m=>`<span class="tok-str">${m}</span>`).replace(/\b(\d+\.?\d*)\b/g,'<span class="tok-num">$1</span>').replace(/\b([A-Za-z_]\w*)\b/g,m=>KW.has(m)?`<span class="tok-kw">${m}</span>`:m).replace(/([A-Za-z_]\w*)(\()/g,'<span class="tok-fn">$1</span>$2');html+=out+(comment?`<span class="tok-com">${esc(comment)}</span>`:'');});block.innerHTML=html;});
+  document.querySelectorAll('.code').forEach(box=>{const btn=box.querySelector('.copy'),code=box.querySelector('code');btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.textContent);btn.textContent='Copied ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1600);}catch(e){btn.textContent='Copy failed';}});});
+  let answered=0,correct=0;document.querySelectorAll('#quiz .q').forEach(q=>{const ans=+q.dataset.answer,opts=[...q.querySelectorAll('.opt')],fb=q.querySelector('.fb');opts.forEach((opt,idx)=>opt.addEventListener('click',()=>{if(q.dataset.done)return;q.dataset.done='1';answered++;if(idx===ans){opt.classList.add('correct');fb.textContent='Correct.';fb.style.color='var(--accent-2)';correct++;}else{opt.classList.add('wrong');opts[ans].classList.add('correct');fb.textContent='Not quite. The highlighted answer is right.';fb.style.color='oklch(70% 0.16 20)';}if(answered===3){document.getElementById('score').textContent=`Score: ${correct} / 3`;}}));});
+  const marks=[...document.querySelectorAll('.mark')],navLinks=[...document.querySelectorAll('#nav a')],KEY='calc-a-progress',state=JSON.parse(localStorage.getItem(KEY)||'{}');
+  const refresh=()=>{const done=marks.filter(m=>m.checked).length,pct=Math.round(done/marks.length*100);document.getElementById('barFill').style.width=pct+'%';document.getElementById('pct').textContent=pct+'%';marks.forEach(m=>{const l=document.querySelector(`#nav a[href="#${m.dataset.sec}"]`);if(l)l.classList.toggle('done',m.checked);});};
+  marks.forEach(m=>{m.checked=!!state[m.dataset.sec];m.addEventListener('change',()=>{state[m.dataset.sec]=m.checked;localStorage.setItem(KEY,JSON.stringify(state));refresh();});});refresh();
+  const sections=[...document.querySelectorAll('main section')];const spy=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(l=>l.classList.remove('active'));const link=document.querySelector(`#nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active');}});},{rootMargin:'-45% 0px -50% 0px'});sections.forEach(s=>spy.observe(s));
+  navLinks.forEach(l=>l.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');}));
+</script>
+</body>
+</html>
