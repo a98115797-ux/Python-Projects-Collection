@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculator · Intermediate · Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:oklch(96% 0.02 255);--bg-2:oklch(93% 0.04 285);--surface:oklch(99% 0.006 255 / 0.62);--surface-solid:oklch(99% 0.006 255);--panel:oklch(97% 0.012 255 / 0.5);--text:oklch(28% 0.03 265);--muted:oklch(50% 0.03 265);--accent:oklch(58% 0.16 262);--accent-2:oklch(66% 0.14 200);--code-bg:oklch(30% 0.04 265);--code-text:oklch(92% 0.02 255);--border:oklch(75% 0.03 265 / 0.4);--radius:12px;--font-body:"Inter",system-ui,sans-serif;--font-mono:"Fira Code",ui-monospace,monospace;--glass:blur(16px) saturate(140%);--shadow:0 8px 32px -8px oklch(40% 0.08 265 / 0.25);}
+  html[data-mode="dark"]{--bg:oklch(22% 0.03 265);--bg-2:oklch(26% 0.05 280);--surface:oklch(32% 0.03 265 / 0.55);--surface-solid:oklch(30% 0.03 265);--panel:oklch(35% 0.03 265 / 0.5);--text:oklch(93% 0.015 255);--muted:oklch(72% 0.025 265);--code-bg:oklch(18% 0.03 265);--border:oklch(55% 0.03 265 / 0.35);--shadow:0 10px 34px -10px oklch(10% 0.05 265 / 0.6);}
+  *{box-sizing:border-box;}
+  body{margin:0;color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.65;background:linear-gradient(135deg,var(--bg),var(--bg-2)) fixed;-webkit-font-smoothing:antialiased;font-optical-sizing:auto;}
+  h1,h2,h3{text-wrap:balance;} p{text-wrap:pretty;}
+  a{color:var(--accent);text-decoration:none;font-weight:600;} a:hover{text-decoration:underline;}
+  .layout{display:grid;grid-template-columns:272px 1fr;min-height:100vh;}
+  .sidebar{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:24px 16px;background:var(--surface);backdrop-filter:var(--glass);border-right:1px solid var(--border);}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .brand .dot{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:white;font-weight:800;font-size:17px;box-shadow:var(--shadow);}
+  .brand h1{font-size:15px;margin:0;} .brand small{color:var(--muted);font-weight:500;}
+  .level-pill{display:inline-block;margin:14px 0 16px;padding:4px 12px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;font-weight:700;font-size:12.5px;}
+  nav a{display:flex;gap:10px;align-items:center;padding:7px 11px;border-radius:9px;color:var(--muted);font-weight:500;font-size:14px;margin-bottom:1px;}
+  nav a .num{font-size:11.5px;opacity:.6;min-width:18px;font-variant-numeric:tabular-nums;}
+  nav a:hover{background:var(--panel);color:var(--text);text-decoration:none;}
+  nav a.active{background:color-mix(in oklch,var(--accent) 20%,transparent);color:var(--accent);font-weight:700;}
+  nav a.done .num::after{content:" ✓";color:var(--accent-2);}
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:12px 30px;background:var(--surface);backdrop-filter:var(--glass);border-bottom:1px solid var(--border);}
+  .progress-wrap{flex:1;} .progress-wrap .label{font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+  .bar{height:8px;border-radius:99px;background:var(--panel);overflow:hidden;border:1px solid var(--border);}
+  .bar > span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s cubic-bezier(.22,1,.36,1);}
+  .toggle{border:1px solid var(--border);background:var(--surface);backdrop-filter:var(--glass);color:var(--text);font-family:var(--font-body);font-weight:600;font-size:13.5px;padding:8px 13px;border-radius:9px;cursor:pointer;}
+  .toggle:hover{border-color:var(--accent);} .menu-btn{display:none;}
+  main{padding:34px clamp(20px,5vw,64px);max-width:880px;}
+  section{scroll-margin-top:76px;margin-bottom:52px;}
+  .eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px;}
+  h2{font-size:clamp(24px,3.5vw,30px);font-weight:800;margin:.15em 0 .5em;letter-spacing:-.01em;}
+  h3{font-size:18.5px;font-weight:700;margin:1.4em 0 .4em;}
+  p{max-width:72ch;} ul,ol{max-width:70ch;}
+  code{font-family:var(--font-mono);font-size:.9em;background:color-mix(in oklch,var(--accent) 12%,transparent);padding:2px 6px;border-radius:6px;font-variant-ligatures:none;}
+  .card{background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .hero{padding:32px 30px;margin-bottom:14px;} .hero h2{margin-top:.1em;font-size:clamp(28px,4.5vw,34px);}
+  .callout{padding:16px 20px;margin:18px 0;border-radius:var(--radius);background:color-mix(in oklch,var(--accent-2) 14%,var(--surface-solid));border:1px solid var(--border);}
+  .obj{display:grid;gap:9px;padding:0;list-style:none;}
+  .obj li{padding:12px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border);backdrop-filter:var(--glass);display:flex;gap:11px;align-items:flex-start;font-weight:500;}
+  .obj li::before{content:"→";color:var(--accent);font-weight:800;margin-top:1px;}
+  .code{position:relative;background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);margin:16px 0;overflow:hidden;box-shadow:var(--shadow);}
+  .code .head{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid oklch(50% 0.02 265 / .3);font-size:12px;color:oklch(75% 0.02 255);font-weight:600;}
+  .code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;line-height:1.6;color:var(--code-text);font-variant-ligatures:none;}
+  .copy{border:1px solid oklch(60% 0.02 265 / .4);background:transparent;color:oklch(78% 0.02 255);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;font-family:var(--font-body);}
+  .copy:hover{color:white;border-color:var(--accent-2);} .copy.copied{color:oklch(80% 0.14 150);}
+  .tok-kw{color:oklch(72% 0.15 300);} .tok-str{color:oklch(78% 0.13 150);} .tok-com{color:oklch(62% 0.02 255);font-style:italic;} .tok-num{color:oklch(78% 0.12 55);} .tok-fn{color:oklch(74% 0.12 235);}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.5px;font-variant-numeric:tabular-nums;background:var(--surface);backdrop-filter:var(--glass);border-radius:var(--radius);overflow:hidden;}
+  th,td{border:1px solid var(--border);padding:9px 13px;text-align:left;} th{background:color-mix(in oklch,var(--accent) 14%,transparent);font-weight:700;}
+  .diagram{padding:20px;margin:16px 0;} .diagram pre{margin:0;font-family:var(--font-mono);font-size:12.5px;color:var(--muted);overflow-x:auto;}
+  details.reveal{padding:4px 18px;margin:14px 0;border-radius:var(--radius);background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);}
+  details.reveal summary{cursor:pointer;font-weight:700;padding:12px 0;}
+  .quiz{display:grid;gap:16px;} .q{padding:18px 20px;border-radius:var(--radius);background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);}
+  .q p.stem{font-weight:700;margin:0 0 12px;}
+  .q .opt{display:block;width:100%;text-align:left;border:1px solid var(--border);background:var(--surface-solid);color:var(--text);padding:11px 14px;border-radius:9px;margin-bottom:8px;cursor:pointer;font-family:var(--font-body);font-weight:500;transition:border-color .2s;}
+  .q .opt:hover{border-color:var(--accent);}
+  .q .opt.correct{background:color-mix(in oklch,oklch(70% 0.15 150) 30%,var(--surface-solid));border-color:oklch(60% 0.15 150);}
+  .q .opt.wrong{background:color-mix(in oklch,var(--accent) 22%,var(--surface-solid));border-color:var(--accent);}
+  .q .fb{font-weight:600;font-size:13.5px;margin-top:6px;min-height:1em;} .score{font-weight:800;font-size:17px;margin-top:8px;}
+  .next{display:flex;justify-content:space-between;gap:16px;padding:20px 24px;border-radius:var(--radius);align-items:center;flex-wrap:wrap;background:var(--surface);backdrop-filter:var(--glass);border:1px solid var(--border);box-shadow:var(--shadow);} .next a{font-weight:800;font-size:16px;}
+  .checkbox-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600;color:var(--muted);font-size:13.5px;} .checkbox-row input{width:19px;height:19px;accent-color:var(--accent);}
+  @media (max-width:860px){.layout{grid-template-columns:1fr;}.sidebar{position:fixed;left:0;top:0;z-index:40;width:82%;max-width:320px;transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);}.sidebar.open{transform:translateX(0);}.menu-btn{display:inline-flex;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:19px;padding:6px 12px;border-radius:9px;cursor:pointer;}main{padding:22px 16px;}.scrim{position:fixed;inset:0;background:oklch(20% 0.05 265 / .45);z-index:35;display:none;backdrop-filter:blur(2px);}.scrim.show{display:block;}}
+</style>
+</head>
+<body>
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="dot">Py</div><div><h1>Calculator</h1><small>Project 01 of 50</small></div></div>
+    <span class="level-pill">⚙️ Intermediate</span>
+    <nav id="nav">
+      <a href="#overview"><span class="num">01</span> Project Overview</a>
+      <a href="#objectives"><span class="num">02</span> Learning Objectives</a>
+      <a href="#prereqs"><span class="num">03</span> Prerequisites</a>
+      <a href="#setup"><span class="num">04</span> Setup Instructions</a>
+      <a href="#concepts"><span class="num">05</span> Key Concepts</a>
+      <a href="#glossary"><span class="num">06</span> Glossary</a>
+      <a href="#predict"><span class="num">07</span> Predict the Output</a>
+      <a href="#source"><span class="num">08</span> Complete Source Code</a>
+      <a href="#walkthrough"><span class="num">09</span> Code Walkthrough</a>
+      <a href="#run"><span class="num">10</span> Execution</a>
+      <a href="#expected"><span class="num">11</span> Expected Output</a>
+      <a href="#errors"><span class="num">12</span> Common Errors</a>
+      <a href="#realworld"><span class="num">13</span> Real-World Uses</a>
+      <a href="#deepdive"><span class="num">14</span> Deep Dive</a>
+      <a href="#challenges"><span class="num">15</span> Practice Challenges</a>
+      <a href="#quiz"><span class="num">16</span> Knowledge Check</a>
+      <a href="#next"><span class="num">17</span> Next Project</a>
+    </nav>
+  </aside>
+  <div>
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+      <div class="progress-wrap"><div class="label">Your progress · <span id="pct">0%</span></div><div class="bar"><span id="barFill"></span></div></div>
+      <button class="toggle" id="themeToggle" aria-label="Toggle light or dark mode">🌙 Dark</button>
+    </header>
+    <main>
+      <section id="overview"><div class="card hero"><span class="eyebrow">Intermediate · Menu-driven console</span><h2>The Calculator, Grown Up</h2><p>Same idea, better engineering. This version runs a menu loop, validates every input, and remembers every calculation by saving it to <code>data/history.json</code>. It's also your first multi-file program: logic in <code>main.py</code>, reusable helpers in <code>utils.py</code>.</p></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="overview" /> Mark this section complete</div></section>
+      <section id="objectives"><span class="eyebrow">Section 02</span><h2>Learning Objectives</h2><ul class="obj"><li>Split a program across modules and <code>import</code> between them.</li><li>Build a menu loop that runs until the user quits.</li><li>Raise and catch specific exceptions.</li><li>Read and write JSON files for persistence.</li><li>Keep functions small and single-purpose.</li></ul><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="objectives" /> Mark this section complete</div></section>
+      <section id="prereqs"><span class="eyebrow">Section 03</span><h2>Prerequisites</h2><p>Comfort with the Beginner variant: functions, <code>if/elif/else</code>, <code>try/except</code>, and running a script. Knowing what a list and a dict are will help.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="prereqs" /> Mark this section complete</div></section>
+      <section id="setup"><span class="eyebrow">Section 04</span><h2>Setup Instructions</h2><ol><li>Create a folder with <code>main.py</code> and <code>utils.py</code>.</li><li>Paste both files from Section 8.</li><li>Run <code>python main.py</code>. The <code>data/</code> folder and <code>history.json</code> are created automatically.</li></ol><div class="callout">Stdlib only, so no <code>pip install</code>.</div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="setup" /> Mark this section complete</div></section>
+      <section id="concepts"><span class="eyebrow">Section 05</span><h2>Key Concepts</h2><h3>Modules and imports</h3><p><code>main.py</code> imports helpers from <code>utils.py</code>. Keeping the menu separate from the plumbing makes each file easier to read and test.</p><h3>Raising exceptions</h3><p>Instead of returning an error string, <code>compute()</code> raises <code>ZeroDivisionError</code>, and the caller decides how to react.</p><h3>JSON persistence</h3><p>We serialize a list of dicts with <code>json.dump</code> and read it back with <code>json.load</code>, so history survives between runs.</p><div class="card diagram"><pre>[ Menu ]
+  |-- 1 New       -> read + compute -> save to history.json -> back
+  |-- 2 History   -> load + print -> back
+  |-- 3 Clear     -> blank lines -> back
+  '-- 4 Quit      -> exit</pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="concepts" /> Mark this section complete</div></section>
+      <section id="glossary"><span class="eyebrow">Section 06</span><h2>Glossary</h2><table><tr><th>Term</th><th>Meaning</th></tr><tr><td><strong>Module</strong></td><td>A <code>.py</code> file you can import from another.</td></tr><tr><td><strong>Import</strong></td><td>Bringing names from one module into another.</td></tr><tr><td><strong>Raise</strong></td><td>Deliberately triggering an exception.</td></tr><tr><td><strong>Serialize</strong></td><td>Turning data into a storable form (here, JSON).</td></tr><tr><td><strong>Persistence</strong></td><td>Data that survives after the program exits.</td></tr><tr><td><strong>Set</strong></td><td>An unordered collection of unique items.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="glossary" /> Mark this section complete</div></section>
+      <section id="predict"><span class="eyebrow">Section 07</span><h2>Predict the Output</h2><div class="code"><div class="head"><span>predict.py</span><button class="copy">Copy</button></div><pre><code>import json
+data = [{"x": 1}, {"x": 2}]
+print(json.dumps(data))</code></pre></div><details class="reveal"><summary>Reveal the answer</summary><p><code>[{"x": 1}, {"x": 2}]</code> as a single JSON string.</p></details><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="predict" /> Mark this section complete</div></section>
+      <section id="source"><span class="eyebrow">Section 08</span><h2>Complete Source Code</h2><div class="code"><div class="head"><span>utils.py</span><button class="copy">Copy</button></div><pre><code>"""Helper functions for the Intermediate calculator."""
+
+import json
+import os
+from datetime import datetime
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+HISTORY_FILE = os.path.join(DATA_DIR, "history.json")
+OPERATORS = {"+", "-", "*", "/"}
+
+
+def read_number(prompt):
+    """Prompt until the user enters a valid number."""
+    while True:
+        raw = input(prompt).strip()
+        try:
+            return float(raw)
+        except ValueError:
+            print("  Invalid number. Try again (example: 3.14).")
+
+
+def compute(a, op, b):
+    """Apply op to a and b. Raises ZeroDivisionError / ValueError."""
+    if op == "+":
+        return a + b
+    if op == "-":
+        return a - b
+    if op == "*":
+        return a * b
+    if op == "/":
+        if b == 0:
+            raise ZeroDivisionError("Division by zero is undefined.")
+        return a / b
+    raise ValueError(f"Unknown operator: {op!r}")
+
+
+def save_entry(expression, result):
+    """Append one calculation to the history file."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    history = load_history()
+    history.append({
+        "expression": expression,
+        "result": result,
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+    })
+    with open(HISTORY_FILE, "w", encoding="utf-8") as file:
+        json.dump(history, file, indent=2)</code></pre></div><div class="code"><div class="head"><span>main.py</span><button class="copy">Copy</button></div><pre><code>"""Intermediate Calculator: menu-driven console app with saved history."""
+
+from utils import compute, load_history, read_number, read_operator, save_entry
+
+
+def do_calculation():
+    a = read_number("First number:  ")
+    op = read_operator("Operator (+ - * /): ")
+    b = read_number("Second number: ")
+    try:
+        result = compute(a, op, b)
+    except ZeroDivisionError as error:
+        print(f"  {error}")
+        return
+    print(f"  = {result}")
+    save_entry(f"{a} {op} {b}", result)
+
+
+def main():
+    while True:
+        choice = input("Option (1 new, 2 history, 4 quit): ").strip()
+        if choice == "1":
+            do_calculation()
+        elif choice == "4":
+            break</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="source" /> Mark this section complete</div></section>
+      <section id="walkthrough"><span class="eyebrow">Section 09</span><h2>Code Walkthrough</h2><p><code>utils.py</code> owns validation, maths (<code>compute</code>, which now <em>raises</em> instead of returning strings), and persistence. <code>main.py</code> owns the menu loop and delegates everything else. <code>save_entry</code> calls <code>os.makedirs(..., exist_ok=True)</code> so <code>data/</code> is created on demand, then appends a timestamped record and rewrites the JSON file.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="walkthrough" /> Mark this section complete</div></section>
+      <section id="run"><span class="eyebrow">Section 10</span><h2>Execution Instructions</h2><div class="code"><div class="head"><span>terminal</span><button class="copy">Copy</button></div><pre><code>python main.py</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="run" /> Mark this section complete</div></section>
+      <section id="expected"><span class="eyebrow">Section 11</span><h2>Expected Output</h2><div class="code"><div class="head"><span>sample run</span><button class="copy">Copy</button></div><pre><code>Option (1 new, 2 history, 4 quit): 1
+First number:  8
+Operator (+ - * /): /
+Second number: 2
+  = 4.0</code></pre></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="expected" /> Mark this section complete</div></section>
+      <section id="errors"><span class="eyebrow">Section 12</span><h2>Common Errors</h2><table><tr><th>Error</th><th>Cause</th><th>Fix</th></tr><tr><td><code>ModuleNotFoundError: utils</code></td><td>Running from the wrong folder</td><td>Run from inside the <code>Intermediate/</code> folder.</td></tr><tr><td><code>JSONDecodeError</code></td><td>Corrupt history file</td><td><code>load_history</code> already falls back to <code>[]</code>.</td></tr><tr><td><code>ZeroDivisionError</code></td><td>Dividing by zero</td><td>Caught in <code>do_calculation</code>; a message prints.</td></tr></table><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="errors" /> Mark this section complete</div></section>
+      <section id="realworld"><span class="eyebrow">Section 13</span><h2>Real-World Applications</h2><p>Menu loops power CLI tools everywhere (git, npm, aws). JSON persistence is how countless apps store settings and small datasets. Splitting logic from I/O is the foundation of testable software.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="realworld" /> Mark this section complete</div></section>
+      <section id="deepdive"><span class="eyebrow">Section 14</span><h2>Deep Dive: why raise instead of return?</h2><p>Returning <code>"Error: ..."</code> mixes results with errors, forcing every caller to string-check. Raising an exception separates the happy path from failure handling and lets errors bubble up. The Advanced variant builds a custom <code>CalculatorError</code> for exactly this reason.</p><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="deepdive" /> Mark this section complete</div></section>
+      <section id="challenges"><span class="eyebrow">Section 15</span><h2>Practice Challenges</h2><ol><li>Add a menu option to clear the history file.</li><li>Support <code>**</code> and <code>%</code> in <code>compute</code> and <code>OPERATORS</code>.</li><li>Show only the last 5 history entries.</li><li>Store results rounded to 4 decimals.</li><li>Add a running total across the session.</li></ol><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="challenges" /> Mark this section complete</div></section>
+      <section id="quiz"><span class="eyebrow">Section 16</span><h2>Knowledge Check</h2><div class="quiz" id="quiz"><div class="q" data-answer="1"><p class="stem">1. Where does the history get saved?</p><button class="opt">In memory only</button><button class="opt">data/history.json</button><button class="opt">A database</button><div class="fb"></div></div><div class="q" data-answer="2"><p class="stem">2. What does <code>compute</code> do on divide-by-zero?</p><button class="opt">Returns "error"</button><button class="opt">Returns 0</button><button class="opt">Raises ZeroDivisionError</button><div class="fb"></div></div><div class="q" data-answer="0"><p class="stem">3. Why keep helpers in <code>utils.py</code>?</p><button class="opt">Separation of concerns and reuse</button><button class="opt">It runs faster</button><button class="opt">Python requires it</button><div class="fb"></div></div></div><div class="score" id="score"></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="quiz" /> Mark this section complete</div></section>
+      <section id="next"><span class="eyebrow">Section 17</span><h2>Next Project</h2><div class="next"><div><p style="margin:0;color:var(--muted);font-weight:600;">Up next in Project 01</p><p style="margin:4px 0 0;">A safe expression parser, OOP, a Tkinter GUI, and a pytest suite.</p></div><a href="../Advanced/guide.html">Advanced →</a></div><div class="checkbox-row"><input type="checkbox" class="mark" data-sec="next" /> Mark this section complete</div></section>
+    </main>
+  </div>
+</div>
+<script>
+  const root=document.documentElement,tbtn=document.getElementById('themeToggle');
+  const savedMode=localStorage.getItem('calc-i-mode'); if(savedMode)root.setAttribute('data-mode',savedMode);
+  const syncBtn=()=>tbtn.textContent=root.getAttribute('data-mode')==='dark'?'☀️ Light':'🌙 Dark'; syncBtn();
+  tbtn.addEventListener('click',()=>{const next=root.getAttribute('data-mode')==='dark'?'light':'dark';root.setAttribute('data-mode',next);localStorage.setItem('calc-i-mode',next);syncBtn();});
+  const sidebar=document.getElementById('sidebar'),scrim=document.getElementById('scrim');
+  document.getElementById('menuBtn').addEventListener('click',()=>{sidebar.classList.add('open');scrim.classList.add('show');});
+  scrim.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');});
+  const KW=new Set("def return if elif else while for in try except import from as with class True False None and or not is print input float int str".split(" "));
+  document.querySelectorAll('.code code').forEach(block=>{const raw=block.textContent;const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');let html='';raw.split('\n').forEach((line,i)=>{if(i)html+='\n';const c=line.indexOf('#');let code=line,comment='';if(c>-1&&(line.match(/"/g)||[]).length%2===0){code=line.slice(0,c);comment=line.slice(c);}let out=esc(code).replace(/(&quot;|&#39;|")(?:[^"']*)\1|'[^']*'/g,m=>`<span class="tok-str">${m}</span>`).replace(/\b(\d+\.?\d*)\b/g,'<span class="tok-num">$1</span>').replace(/\b([A-Za-z_]\w*)\b/g,m=>KW.has(m)?`<span class="tok-kw">${m}</span>`:m).replace(/([A-Za-z_]\w*)(\()/g,'<span class="tok-fn">$1</span>$2');html+=out+(comment?`<span class="tok-com">${esc(comment)}</span>`:'');});block.innerHTML=html;});
+  document.querySelectorAll('.code').forEach(box=>{const btn=box.querySelector('.copy'),code=box.querySelector('code');btn.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(code.textContent);btn.textContent='Copied ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1600);}catch(e){btn.textContent='Copy failed';}});});
+  let answered=0,correct=0;document.querySelectorAll('#quiz .q').forEach(q=>{const ans=+q.dataset.answer,opts=[...q.querySelectorAll('.opt')],fb=q.querySelector('.fb');opts.forEach((opt,idx)=>opt.addEventListener('click',()=>{if(q.dataset.done)return;q.dataset.done='1';answered++;if(idx===ans){opt.classList.add('correct');fb.textContent='Correct!';fb.style.color='oklch(55% 0.14 150)';correct++;}else{opt.classList.add('wrong');opts[ans].classList.add('correct');fb.textContent='Not quite. The highlighted answer is right.';fb.style.color='var(--accent)';}if(answered===3){document.getElementById('score').textContent=`You scored ${correct} / 3.`;}}));});
+  const marks=[...document.querySelectorAll('.mark')],navLinks=[...document.querySelectorAll('#nav a')],KEY='calc-i-progress',state=JSON.parse(localStorage.getItem(KEY)||'{}');
+  const refresh=()=>{const done=marks.filter(m=>m.checked).length,pct=Math.round(done/marks.length*100);document.getElementById('barFill').style.width=pct+'%';document.getElementById('pct').textContent=pct+'%';marks.forEach(m=>{const l=document.querySelector(`#nav a[href="#${m.dataset.sec}"]`);if(l)l.classList.toggle('done',m.checked);});};
+  marks.forEach(m=>{m.checked=!!state[m.dataset.sec];m.addEventListener('change',()=>{state[m.dataset.sec]=m.checked;localStorage.setItem(KEY,JSON.stringify(state));refresh();});});refresh();
+  const sections=[...document.querySelectorAll('main section')];const spy=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(l=>l.classList.remove('active'));const link=document.querySelector(`#nav a[href="#${e.target.id}"]`);if(link)link.classList.add('active');}});},{rootMargin:'-45% 0px -50% 0px'});sections.forEach(s=>spy.observe(s));
+  navLinks.forEach(l=>l.addEventListener('click',()=>{sidebar.classList.remove('open');scrim.classList.remove('show');}));
+</script>
+</body>
+</html>
